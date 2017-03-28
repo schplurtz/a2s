@@ -46,13 +46,10 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
      */
     public function connectTo($mode) {
         $this->Lexer->addEntryPattern('<a2s>(?=.*?</a2s>)',$mode,'plugin_a2s');
-//        $this->Lexer->addSpecialPattern('<FIXME>',$mode,'plugin_a2s');
-//        $this->Lexer->addEntryPattern('<FIXME>',$mode,'plugin_a2s');
     }
 
     public function postConnect() {
         $this->Lexer->addExitPattern('</a2s>','plugin_a2s');
-//        $this->Lexer->addExitPattern('</FIXME>','plugin_a2s');
     }
 
     /**
@@ -65,6 +62,7 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
      * @return array Data for the renderer
      */
     public function handle($match, $state, $pos, Doku_Handler $handler){
+        require_once(dirname(__FILE__).'/a2s.php');
         switch ($state) {
           case DOKU_LEXER_ENTER :
             $args = trim(substr(rtrim($match), 4, -1)); //strip <a2s and >
@@ -91,21 +89,22 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
      */
     public function render($mode, Doku_Renderer $renderer, $data) {
         if($mode != 'xhtml') return false;
-
         $state='';
-        if($mode == 'xhtml'){
-            list($state, $match) = $data;
-            switch ($state) {
-            case DOKU_LEXER_ENTER :
-                $renderer->doc .= '<pre style="color:#0;border:dashed 3px blue;margin=.5em;padding:.5em;background:#fea;font-size:110%;overflow:hidden;border-radius:50%;">';
-            break;
-            case DOKU_LEXER_UNMATCHED :
-                $renderer->doc .= hsc($match);
-            break;
-            case DOKU_LEXER_EXIT :
-                $renderer->doc .= "</pre>";
-            break;
-            }
+        list($state, $match) = $data;
+        switch ($state) {
+        case DOKU_LEXER_ENTER :
+            $a=2;
+        break;
+        case DOKU_LEXER_UNMATCHED :
+            $scale = array(9, 16);
+            $o = new \org\dh0\a2s\ASCIIToSVG($match);
+            $o->setDimensionScale(9, 16);
+            $o->parseGrid();
+            $renderer->doc .= $o->render();
+        break;
+        case DOKU_LEXER_EXIT :
+            $a=2;
+        break;
         }
         return true;
     }
