@@ -11,22 +11,32 @@ if (!defined('DOKU_INC')) die();
 
 class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
     /**
+     * return some info.
+     * Why did I copy this function here ? old DW compat ???
+     * 
+     * @return array hash of plugin technical informations.
+     */
+    function getInfo(){
+        return confToHash(dirname(__FILE__).'/plugin.info.txt');
+    }
+
+    /**
      * @return string Syntax mode type
      */
     public function getType() {
-        return 'FIXME: container|baseonly|formatting|substition|protected|disabled|paragraphs';
+        return 'protected';
     }
     /**
      * @return string Paragraph type
      */
     public function getPType() {
-        return 'FIXME: normal|block|stack';
+        return 'block';
     }
     /**
      * @return int Sort order - Low numbers go before high numbers
      */
     public function getSort() {
-        return FIXME;
+        return 610;
     }
 
     /**
@@ -35,13 +45,15 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
      * @param string $mode Parser mode
      */
     public function connectTo($mode) {
-        $this->Lexer->addSpecialPattern('<FIXME>',$mode,'plugin_a2s');
+        $this->Lexer->addEntryPattern('<a2s>(?=.*?</a2s>)',$mode,'plugin_a2s');
+//        $this->Lexer->addSpecialPattern('<FIXME>',$mode,'plugin_a2s');
 //        $this->Lexer->addEntryPattern('<FIXME>',$mode,'plugin_a2s');
     }
 
-//    public function postConnect() {
+    public function postConnect() {
+        $this->Lexer->addExitPattern('</a2s>','plugin_a2s');
 //        $this->Lexer->addExitPattern('</FIXME>','plugin_a2s');
-//    }
+    }
 
     /**
      * Handle matches of the a2s syntax
@@ -53,9 +65,20 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
      * @return array Data for the renderer
      */
     public function handle($match, $state, $pos, Doku_Handler $handler){
-        $data = array();
-
-        return $data;
+        switch ($state) {
+          case DOKU_LEXER_ENTER :
+            $args = trim(substr(rtrim($match), 4, -1)); //strip <a2s and >
+            return array($state, $args);
+          case DOKU_LEXER_MATCHED :
+            break;
+          case DOKU_LEXER_UNMATCHED :
+            return array($state, $match);
+          case DOKU_LEXER_EXIT :
+            return array($state, '');
+          case DOKU_LEXER_SPECIAL :
+            break;
+        }
+        return array();
     }
 
     /**
@@ -69,6 +92,21 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
     public function render($mode, Doku_Renderer $renderer, $data) {
         if($mode != 'xhtml') return false;
 
+        $state='';
+        if($mode == 'xhtml'){
+            list($state, $match) = $data;
+            switch ($state) {
+            case DOKU_LEXER_ENTER :
+                $renderer->doc .= '<pre style="color:#0;border:dashed 3px blue;margin=.5em;padding:.5em;background:#fea;font-size:110%;overflow:hidden;border-radius:50%;">';
+            break;
+            case DOKU_LEXER_UNMATCHED :
+                $renderer->doc .= hsc($match);
+            break;
+            case DOKU_LEXER_EXIT :
+                $renderer->doc .= "</pre>";
+            break;
+            }
+        }
         return true;
     }
 }
