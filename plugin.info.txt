@@ -1,0 +1,7 @@
+base   asciitosvg
+author Schplurtz le Déboulonné
+email  Schplurtz@laposte.net
+date   2017-03-27
+name   asciitosvg plugin
+desc   Renders ASCII box and lines as SVG using ASCIIToSVG.
+url    https://github.com/schplurtz/asciitosvg
