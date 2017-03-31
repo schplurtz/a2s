@@ -1698,11 +1698,9 @@ class CustomObjects {
 
 
   public static function loadObjects() {
-    //$cacheFile = getenv('HOME') . '/.a2s/objcache';
-    //$dir = getenv('HOME') . '/.a2s/objects';
-    $cacheFile = sys_get_temp_dir() . "/.a2s.objcache";
-    $dir = '/tmp/';
-
+    global $conf;
+    $cacheFile = $conf['cachedir'] . '/plugin.asciitosvg.objcache';
+    $dir = dirname(__FILE__) . '/objects';
     if (is_callable(self::$loadCacheFn)) {
       /*
        * Should return exactly what was given to the $storCacheFn when it was
