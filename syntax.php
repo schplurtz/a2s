@@ -45,7 +45,7 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
      * @param string $mode Parser mode
      */
     public function connectTo($mode) {
-        $this->Lexer->addEntryPattern('<a2s>(?=.*?</a2s>)',$mode,'plugin_a2s');
+        $this->Lexer->addEntryPattern('< *a2s *>(?=.*?</a2s>)',$mode,'plugin_a2s');
     }
 
     public function postConnect() {
@@ -65,8 +65,7 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
         require_once(dirname(__FILE__).'/a2s.php');
         switch ($state) {
           case DOKU_LEXER_ENTER :
-            $args = trim(substr(rtrim($match), 4, -1)); //strip <a2s and >
-            return array($state, $args);
+            return array($state, $match);
           case DOKU_LEXER_MATCHED :
             break;
           case DOKU_LEXER_UNMATCHED :
@@ -94,6 +93,7 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
         switch ($state) {
         case DOKU_LEXER_ENTER :
             $a=2;
+            // TODO: check $match left and right spaces, in order to align.
         break;
         case DOKU_LEXER_UNMATCHED :
             $scale = array(9, 16);
