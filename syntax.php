@@ -87,6 +87,7 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
      * @return bool If rendering was successful.
      */
     public function render($mode, Doku_Renderer $renderer, $data) {
+        require_once(dirname(__FILE__).'/a2s.php');
         if($mode != 'xhtml') return false;
         $state='';
         list($state, $match) = $data;
