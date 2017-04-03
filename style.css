@@ -1,0 +1,16 @@
+svg {
+  /*
+   * these are the same as DW img style
+   */
+  max-width: 100%;
+  border-width: 0;
+  vertical-align: middle;
+  color: #666; /* as of 2017-04-03, not an @ini.thing, direct value */
+  background-color: transparent;
+  font-style: italic;
+  /*
+   * Just remove this. With this, svg are vertically clipped
+   * when they are horizontally clipped, Which is weird.
+  height: auto;
+   */
+}
