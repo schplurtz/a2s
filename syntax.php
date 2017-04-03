@@ -10,6 +10,10 @@
 if (!defined('DOKU_INC')) die();
 
 class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
+    protected static $cssAlign=array(
+        'none' => 'media', 'left' => 'medialeft',
+        'right' => 'mediaright', 'center' => 'mediacenter'
+    );
     /**
      * return some info.
      * Why did I copy this function here ? old DW compat ???
@@ -45,7 +49,7 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
      * @param string $mode Parser mode
      */
     public function connectTo($mode) {
-        $this->Lexer->addEntryPattern('<a2s>(?=.*?</a2s>)',$mode,'plugin_a2s');
+        $this->Lexer->addEntryPattern('< *a2s *>(?=.*?</a2s>)',$mode,'plugin_a2s');
     }
 
     public function postConnect() {
@@ -65,8 +69,7 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
         require_once(dirname(__FILE__).'/a2s.php');
         switch ($state) {
           case DOKU_LEXER_ENTER :
-            $args = trim(substr(rtrim($match), 4, -1)); //strip <a2s and >
-            return array($state, $args);
+            return array($state, $match);
           case DOKU_LEXER_MATCHED :
             break;
           case DOKU_LEXER_UNMATCHED :
@@ -90,14 +93,28 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
     public function render($mode, Doku_Renderer $renderer, $data) {
         if($mode != 'xhtml') return false;
         $state='';
-        list($state, $match) = $data;
+        list($state, $passed_in) = $data;
+
         switch ($state) {
         case DOKU_LEXER_ENTER :
-            $a=2;
+            $spaces=array();
+            preg_match( '/<( *)a2s( *)>/', $passed_in, $spaces );
+            $left=strlen($spaces[1]);
+            $right=strlen($spaces[2]);
+            $align='none';
+            if( ($right + $left) > 0 ) {
+                if( $right > $left )
+                    $align='left';
+                elseif( $left > $right)
+                    $align='right';
+                else
+                    $align='center';
+            }
+            $align=self::$cssAlign[$align];
+            $renderer->doc .= "<svg class=\"{$align}\" ";
         break;
         case DOKU_LEXER_UNMATCHED :
-            $scale = array(9, 16);
-            $o = new \org\dh0\a2s\ASCIIToSVG($match);
+            $o = new \org\dh0\a2s\ASCIIToSVG($passed_in);
             $o->setDimensionScale(9, 16);
             $o->parseGrid();
             $renderer->doc .= $o->render();

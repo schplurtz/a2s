@@ -2,7 +2,7 @@
 /*
  * This file is a modified version of ASCIIToSVG.php
  *
- * It also includes other files from the ASCIITpSVG suite :
+ * It also includes other files from the ASCIIToSVG suite :
  * svg-path.lex.php jlex.php, svg-path.php and colors.php
  * only the <?php opening tag has been commented out.
  *
@@ -2877,13 +2877,16 @@ class ASCIIToSVG {
      * Boilerplate header with definitions that we might be using for markers
      * and drop shadows.
      */
-    $out = <<<SVG
+/*
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" 
   "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <!-- Created with ASCIIToSVG (https://github.com/dhobsd/asciitosvg/) -->
-<svg width="{$canvasWidth}px" height="{$canvasHeight}px" version="1.1"
+*/
+    $out = <<<SVG
+width="{$canvasWidth}px" height="{$canvasHeight}px" version="1.1"
   xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <!-- Created with ASCIIToSVG (https://github.com/dhobsd/asciitosvg/) -->
   <defs>
     <filter id="dsFilterNoBlur" width="150%" height="150%">
       <feOffset result="offOut" in="SourceGraphic" dx="3" dy="3"/>
