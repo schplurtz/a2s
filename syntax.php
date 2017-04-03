@@ -69,11 +69,27 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
         require_once(dirname(__FILE__).'/a2s.php');
         switch ($state) {
           case DOKU_LEXER_ENTER :
-            return array($state, $match);
+            $spaces=array();
+            preg_match( '/<( *)a2s( *)>/', $match, $spaces );
+            $left=strlen($spaces[1]);
+            $right=strlen($spaces[2]);
+            $align='none';
+            if( ($right + $left) > 0 ) {
+                if( $right > $left )
+                    $align='left';
+                elseif( $left > $right)
+                    $align='right';
+                else
+                    $align='center';
+            }
+            return array($state, $align);
           case DOKU_LEXER_MATCHED :
             break;
           case DOKU_LEXER_UNMATCHED :
-            return array($state, $match);
+            $o = new \org\dh0\a2s\ASCIIToSVG($match);
+            $o->setDimensionScale(9, 16);
+            $o->parseGrid();
+            return array($state, $o->render());
           case DOKU_LEXER_EXIT :
             return array($state, '');
           case DOKU_LEXER_SPECIAL :
@@ -97,27 +113,11 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
 
         switch ($state) {
         case DOKU_LEXER_ENTER :
-            $spaces=array();
-            preg_match( '/<( *)a2s( *)>/', $passed_in, $spaces );
-            $left=strlen($spaces[1]);
-            $right=strlen($spaces[2]);
-            $align='none';
-            if( ($right + $left) > 0 ) {
-                if( $right > $left )
-                    $align='left';
-                elseif( $left > $right)
-                    $align='right';
-                else
-                    $align='center';
-            }
-            $align=self::$cssAlign[$align];
+            $align=self::$cssAlign[$passed_in];
             $renderer->doc .= "<svg class=\"{$align}\" ";
         break;
         case DOKU_LEXER_UNMATCHED :
-            $o = new \org\dh0\a2s\ASCIIToSVG($passed_in);
-            $o->setDimensionScale(9, 16);
-            $o->parseGrid();
-            $renderer->doc .= $o->render();
+            $renderer->doc .= $passed_in;
         break;
         case DOKU_LEXER_EXIT :
             $a=2;
