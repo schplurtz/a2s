@@ -66,7 +66,6 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
      * @return array Data for the renderer
      */
     public function handle($match, $state, $pos, Doku_Handler $handler){
-        require_once(dirname(__FILE__).'/a2s.php');
         switch ($state) {
           case DOKU_LEXER_ENTER :
             $spaces=array();
@@ -86,7 +85,7 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
           case DOKU_LEXER_MATCHED :
             break;
           case DOKU_LEXER_UNMATCHED :
-            $o = new \org\dh0\a2s\ASCIIToSVG($match);
+            $o = new dokuwiki\plugin\a2s\ASCIIToSVG($match);
             $o->setDimensionScale(9, 16);
             $o->parseGrid();
             return array($state, $o->render());

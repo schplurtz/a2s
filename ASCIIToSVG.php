@@ -2,7 +2,8 @@
 /*
  * This file is a modified version of ASCIIToSVG.php
  *
- * It also includes other files from the ASCIIToSVG suite :
+ * It also includes other slightly modified files from the
+ * ASCIIToSVG suite :
  * svg-path.lex.php jlex.php, svg-path.php and colors.php
  * only the <?php opening tag has been commented out.
  *
@@ -37,7 +38,7 @@
  *
  */
 
-namespace org\dh0\a2s;
+namespace dokuwiki\plugin\a2s;
 
 //<?php # vim:ft=php
 //<?php # vim:ts=2:sw=2:et:

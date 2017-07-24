@@ -1,4 +1,4 @@
-base   asciitosvg
+base   a2s
 author Schplurtz le Déboulonné
 email  Schplurtz@laposte.net
 date   2017-03-27
