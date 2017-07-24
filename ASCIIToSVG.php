@@ -2076,10 +2076,6 @@ class SVGPath {
     return $this->text;
   }
 
-  public function setID($id) {
-    $this->name = str_replace(' ', '_', str_replace('"', '_', $id));
-  }
-
   public function getID() {
     return $this->name;
   }
@@ -2693,7 +2689,6 @@ class SVGPath {
     
     if (count($this->text) > 0) {
       foreach ($this->text as $text) {
-        $text->setID($this->name);
         $out .= "\t" . $text->render() . "\n";
       }
     }
@@ -2753,10 +2748,6 @@ class SVGText {
 
   public function setOption($opt, $val) {
     $this->options[$opt] = $val;
-  }
-
-  public function setID($id) {
-    $this->name = str_replace(' ', '_', str_replace('"', '_', $id));
   }
 
   public function getID() {
@@ -3039,10 +3030,6 @@ SVG;
               }
 
               $name = $this->findCommands($path);
-
-              if ($name != '') {
-                $path->setID($name);
-              }
 
               $this->svgObjects->addObject($path);
             }
