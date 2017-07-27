@@ -11,9 +11,17 @@ if (!defined('DOKU_INC')) die();
 
 class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
     protected static $cssAlign=array(
-        'none' => 'media', 'left' => 'medialeft',
+        '' => 'media', 'left' => 'medialeft',
         'right' => 'mediaright', 'center' => 'mediacenter'
     );
+    protected static $opening=<<<SVG
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<!-- Created with ASCIIToSVG (https://github.com/dhobsd/asciitosvg/) -->
+<svg 
+SVG;
+    protected static $alignbyid=Array();
+    protected static $id=-1;
     /**
      * return some info.
      * Why did I copy this function here ? old DW compat ???
@@ -67,12 +75,13 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
      */
     public function handle($match, $state, $pos, Doku_Handler $handler){
         switch ($state) {
-          case DOKU_LEXER_ENTER :
+        case DOKU_LEXER_ENTER :
+            self::$id += 1; // increment id when we meet a new <a2s> string
             $spaces=array();
             preg_match( '/<( *)a2s( *)>/', $match, $spaces );
             $left=strlen($spaces[1]);
             $right=strlen($spaces[2]);
-            $align='none';
+            $align='';
             if( ($right + $left) > 0 ) {
                 if( $right > $left )
                     $align='left';
@@ -81,33 +90,49 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
                 else
                     $align='center';
             }
-            return array($state, $align);
-          case DOKU_LEXER_MATCHED :
-            break;
-          case DOKU_LEXER_UNMATCHED :
-            $o = new dokuwiki\plugin\a2s\ASCIIToSVG($match);
+            self::$alignbyid[self::$id]=$align; // needed to pass $align to ODT LEXER_MATCHED render
+            return array($state, $align, null);
+        case DOKU_LEXER_UNMATCHED :
+            $o = new dokuwiki\plugin\a2s\ASCIIToSVG(trim($match, "\r\n"));
             $o->setDimensionScale(9, 16);
             $o->parseGrid();
-            return array($state, $o->render());
-          case DOKU_LEXER_EXIT :
+            // save alignment for later use by ODT renderer
+            return array($state, $o->render(), self::$alignbyid[self::$id]);
+        case DOKU_LEXER_EXIT :
             return array($state, '');
-          case DOKU_LEXER_SPECIAL :
-            break;
         }
         return array();
     }
 
     /**
-     * Render xhtml output or metadata
+     * Render output, generic method. Call specialized renderer depending
+     * on the mode.
      *
-     * @param string         $mode      Renderer mode (supported modes: xhtml)
+     * @param string         $mode      Renderer mode (supported modes: xhtml, odt)
      * @param Doku_Renderer  $renderer  The renderer
      * @param array          $data      The data from the handler() function
      * @return bool If rendering was successful.
      */
     public function render($mode, Doku_Renderer $renderer, $data) {
-        if($mode != 'xhtml') return false;
-        $state='';
+        switch($mode) {
+        case 'xhtml':
+            return $this->_render_xhtml($renderer, $data);
+        break;
+        case 'odt':
+            return $this->_render_odt($renderer, $data);
+        break;
+        }
+        return false;
+    }
+
+    /**
+     * Render xhtml output. add data to the renderer doc.
+     *
+     * @param Doku_Renderer  $renderer  The renderer
+     * @param array          $data      The data from the handler() function
+     * @return bool If rendering was successful.
+     */
+    protected function _render_xhtml(Doku_Renderer $renderer, $data) {
         list($state, $passed_in) = $data;
 
         switch ($state) {
@@ -118,11 +143,41 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
         case DOKU_LEXER_UNMATCHED :
             $renderer->doc .= $passed_in;
         break;
-        case DOKU_LEXER_EXIT :
-            $a=2;
-        break;
         }
         return true;
+    }
+
+    /**
+     * Render odt output.
+     *
+     * @param Doku_Renderer  $renderer  The renderer
+     * @param array          $data      The data from the handler() function
+     * @return bool If rendering was successful.
+     */
+    protected function _render_odt(Doku_Renderer $renderer, $data) {
+        list($state, $passed_in, $align) = $data;
+
+        if($state === DOKU_LEXER_UNMATCHED) {
+            $dim=$this->_extract_XY_4svg( $passed_in );
+            $renderer->_addStringAsSVGImage(self::$opening.$passed_in, $dim[0], $dim[1], $align);
+        }
+        return true;
+    }
+
+    /**
+     * Find the SVG X and Y dimensions in the svg string of the image.
+     * it searches for 'width="nnnpx" height="mmmpx"' in the first
+     * given string and returns the dimension in inch.
+     *
+     * @param String  $svgtxt  The svg string to inspect
+     * @return array the X and Y dimensions suitable as SVG dimensions
+     */
+    protected function _extract_XY_4svg( $svgtxt ) {
+        $sizes=array();
+        preg_match( '/width="(.*?)px" height="(.*?)px"/', $svgtxt, $sizes );
+        array_shift($sizes);
+        // assume a 96 dpi screen
+        return array_map( function($v) { return ($v/96.0)."in"; }, $sizes );
     }
 }
 
