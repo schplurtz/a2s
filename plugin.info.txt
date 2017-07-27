@@ -1,7 +1,7 @@
 base   a2s
 author Schplurtz le Déboulonné
 email  Schplurtz@laposte.net
-date   2017-07-27
-name   asciitosvg plugin
-desc   Renders ASCII box and lines as SVG using ASCIIToSVG.
-url    https://github.com/schplurtz/asciitosvg
+date   2017-07-28
+name   a2s plugin
+desc   Convert ASCII art to nice embeded SVG images.
+url    https://www.dokuwiki.org/plugin:a2s
