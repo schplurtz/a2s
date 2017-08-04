@@ -2876,7 +2876,8 @@ class ASCIIToSVG {
 <!-- Created with ASCIIToSVG (https://github.com/dhobsd/asciitosvg/) -->
 */
     $out = <<<SVG
-width="{$canvasWidth}px" height="{$canvasHeight}px" version="1.1"
+width="{$canvasWidth}px" height="{$canvasHeight}px"
+viewBox="0 0 {$canvasWidth} {$canvasHeight}" version="1.1"
   xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
   <!-- Created with ASCIIToSVG (https://github.com/dhobsd/asciitosvg/) -->
   <defs>
