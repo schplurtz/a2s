@@ -138,7 +138,7 @@ SVG;
         switch ($state) {
         case DOKU_LEXER_ENTER :
             $align=self::$cssAlign[$passed_in];
-            $renderer->doc .= "<svg class=\"{$align}\" ";
+            $renderer->doc .= "<svg class=\"a2s {$align}\" ";
         break;
         case DOKU_LEXER_UNMATCHED :
             $renderer->doc .= $passed_in;
