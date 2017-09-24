@@ -3,7 +3,7 @@ a2s yet another ASCII to SVG  Plugin for DokuWiki
 Renders ASCII box and lines as SVG using ASCIIToSVG.
 
 All documentation for this plugin can be found at
-https://github.com/schplurtz/asciitosvg
+https://www.dokuwiki.org/plugin:a2s
 
 If you install this plugin manually, make sure it is installed in
 lib/plugins/a2s/ - if the folder is called different it
