@@ -1,0 +1,464 @@
+====== a2s Plugin ======
+
+<code>
+---- plugin ----
+description: Convert ASCII art to nice embedded SVG images
+author     : Schplurtz le Déboulonné
+email      : Schplurtz@laposte.net
+type       : syntax
+lastupdate : 2017-08-05
+compatible : elenor of tsort, detritus, frusterick manners
+depends    : 
+conflicts  : 
+similar    : ditaa, diagram
+tags       : ASCII, SVG, image, images, media, diagram
+downloadurl: https://github.com/schplurtz/a2s/zipball/master
+bugtracker : https://github.com/schplurtz/a2s/issues
+sourcerepo : https://github.com/schplurtz/a2s
+donationurl: 
+
+screenshot_img : http://imageshack.com/a/img923/6940/SjSOjj.png
+----
+</code>
+
+a2s is a little plugin that turns ASCII art boxes, lines and arrows into nice SVG images. It is based on [[https://github.com/dhobsd/asciitosvg|ASCIIToSVG]] by [[https://github.com/dhobsd|Devon H. O'Dell]]. It is very similar to the [[doku>plugin:ditaa|ditaa]] plugin but does not require external programs to run. It is compatible with the ODT export plugin.
+
+===== Installation =====
+
+Install the plugin using the [[doku>plugin:plugin|Plugin Manager]]. It will install the latest version of the plugin. Refer to [[doku>:Plugins]] on how to install plugins manually.
+
+===== Examples/Usage =====
+
+<a2s>
+ .-------------------------.
+ |[Logo]                   |
+ | .---.-. .-----. .-----. |
+ | | .-. | +-->  | |  <--| |
+ | | '-' | |  <--| +-->  | |
+ | '---'-' '-----' '-----' |
+ |  ascii     2      svg   |
+ |                         |
+ '-------------------------'
+  https://9vx.org/~dho/a2s/
+
+[Logo]:     {"fill":"#88d","a2s:delref":true}
+</a2s>
+<code txt logo.a2s>
+<a2s>
+ .-------------------------.
+ |[Logo]                   |
+ | .---.-. .-----. .-----. |
+ | | .-. | +-->  | |  <--| |
+ | | '-' | |  <--| +-->  | |
+ | '---'-' '-----' '-----' |
+ |  ascii     2      svg   |
+ |                         |
+ '-------------------------'
+  https://9vx.org/~dho/a2s/
+
+[Logo]:     {"fill":"#88d","a2s:delref":true}
+</a2s>
+</code>
+
+<a2s> 
+          +----+--------+                                :
+          |    |        |             .----------------. |
+          v    |        |             |[0]             | |
+     #---------+---.    |        o----+----> Waow !    | v
+     |             |<---+       /     |                | ^
+====>| Hello       |           /      '----------------' |
+====>| (svg) World '------.   /  #------#   .-------.    |
+     |    .-----#         |==+   |      |   |       |    |
+     '----#     '---------#      #------#   '-------'
+[0]: {"fill":"#CE3B83","stroke":"#F50078","stroke-dasharray":"5 5","stroke-width":4,"a2s:type":"cloud","a2s:delref":true}
+</a2s>
+<code txt tryme.a2s>
+<a2s> 
+          +----+--------+                                :
+          |    |        |             .----------------. |
+          v    |        |             |[0]             | |
+     #---------+---.    |        o----+----> Waow !    | v
+     |             |<---+       /     |                | ^
+====>| Hello       |           /      '----------------' |
+====>| (svg) World '------.   /  #------#   .-------.    |
+     |    .-----#         |==+   |      |   |       |    |
+     '----#     '---------#      #------#   '-------'
+[0]: {"fill":"#CE3B83","stroke":"#F50078","stroke-dasharray":"5 5","stroke-width":4,"a2s:type":"cloud","a2s:delref":true}
+</a2s>
+</code>
+
+===== Syntax =====
+
+Please, note that the reference doc is on [[https://github.com/dhobsd/asciitosvg/|ASCIIToSVG site]].
+
+  * There are two kinds of objects : free lines, and closed shapes (usually boxes)
+  * free lines
+    * Plain straight lines are drawn with ''|'', ''-'', ''\'' and ''/''
+    * dashed lines : use at least one ''='' (horizontal) or '':'' (vertical) in a line, and it is dashed. Oblique lines can't be dashed.
+    * ''+'' and ''o'' (lower case letter O) are used to connect lines of different orientation.
+    * arrowhead. Use ''<'', ''>'', ''v'', and ''^''. Nothing special here
+  * closed shapes
+    * Borders are drawn with ''|'' and ''-'' only.
+    * ''%%'%%'', ''.'' and ''#'' are used for box angle. Do not use ''+'', as it does not create closed shape.
+    * closed shape can be styled.
+      - Identify the shape : In the **top left** angle of the shape, put some text between square bracket. example ''[0]'', ''[logo]'', ''[some text]''
+      - **At the bottom** of the drawing, for each identified shape, add a **single** line with the identifier and a JSON hash of property:value. See the section just below for details.
+
+==== Styling shapes and linking ====
+
+Colors are expressed either
+  * In RGB with 3 or 6 hexdigits preceded by a sharp sign : ''#88d'', ''#F50078''
+  * or using a colorname such as ''blue'', ''red'', ''LemonChiffon'' etc... I just don't know the exact list of valid colornames. Please note that ''LemonChiffon'' seems valid, but that ''lemon chiffon'' is not, although it is a valid X11 colorname.
+
+It is not possible to choose text color. When background is dark, ASCIIToSVG
+uses white. When background is light, text is written in black.
+
+Available styling parametre :
+  * fill color : ''"fill":"//color//"''. examples :<code>"fill":"#88d"
+"fill":"#F50078"
+"fill":"LemonChiffon"
+"fill":"blue"
+</code>
+  * border stroke color : ''"stroke":"//color//"''. examples :<code>"stroke":"#88d"
+"stroke":"#F50078"
+"stroke":"LemonChiffon"
+"stroke":"blue"
+</code>
+  * border stroke width : ''"stroke-width"://number//'' unit and default value is unknown. Example :<code>"stroke-width":7</code>
+  * border stroke dash : A serie of pair of dash length and space length. Length unit is unknown. Examples <code>"stroke-dasharray":"5 5"
+"stroke-dasharray":"5 5 10 3 2 8"
+</code>
+  * shape : ''"a2s:type":"shapename"'' where shapename is one of ''cloud'', ''computer'', ''diamond'', ''document'', ''storage'', ''printer''. Examples<code>"a2s:type":"cloud"
+"a2s:type":"storage"
+</code>
+  * link : ''"a2s:link":"//linktext//"'' where //linktext// is either a wiki link, or a classic %%protocol://server/resource%% link. Examples:<code>
+"a2s:link":"[[.:]]"
+"a2s:link":"[[:start]]"
+"a2s:link":"[[:start|The start page]]"
+"a2s:link":"[[doku>wiki:syntax#tables|DokuWiki table syntax]]
+"a2s:link":"https://github.com/schplurtz/a2s"
+"a2s:link":"ftp://ftp.debian.org/debian/README"
+</code>
+  * identifier removal. By default the id is left in the image. This is useful when you have enough room to use a meaningful word as id. However, it is possible to remove it using this code <code>"a2s:delref":true</code>
+
+here is a full example :
+<code>[0]: {"fill":"#d48","stroke":"#F50078","stroke-dasharray":"5 5","stroke-width":4,"a2s:type":"cloud","a2s:delref":true,"a2s:link":"https://github.com/schplurtz/a2s"}</code>
+
+==== Alignment ====
+
+Just like with regular images, you can align your SVG graphics by inserting spaces after ''<'' and before ''>''. If there are more spaces on the left of the word ''a2s'', then the image is right-aligned, if there are more spaces on the right, the image is left-aligned. When there is the same number of spaces on both sides of ''a2s'', the image is centered
+
+< a2s>
+ .---------.
+ |[1]      |
+ | .-----. |
+ | |  <--+ |
+ | +-->  | |
+ | '-----' |
+ |   svg   |
+ |<    a2s>|
+ '---------'
+
+[1]:     {"fill":"#E97B11","a2s:delref":true}
+</a2s>
+<a2s  >
+ .---------.
+ |[blue]   |
+ | .---.-. |
+ | | .-. | |
+ | | '-' | |
+ | '---'-' |
+ |  ascii  |
+ |<a2s    >|
+ '---------'
+
+[blue]:     {"fill":"blue","a2s:delref":true}
+</a2s>
+<  a2s  >
+ .---------.
+ |[lc]     |
+ | .-----. |
+ | +-->  | |
+ | |  <--+ |
+ | '-----' |
+ |    2    |
+ |<  a2s  >|
+ '---------'
+
+[lc]:     {"fill":"LemonChiffon","a2s:delref":true}
+</a2s>
+
+< a2s>
+ .---------.
+ |[1]      |
+ | .-----. |
+ | |  <--+ |
+ | +-->  | |
+ | '-----' |
+ |   svg   |
+ |<    a2s>|
+ '---------'
+[1]:     {"fill":"#bcd2ee","a2s:delref":true}
+</a2s>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan nec
+odio quis aliquet. Nulla gravida ac est venenatis rhoncus. Aenean viverra
+felis semper turpis commodo, ut vehicula dui mattis. Vivamus malesuada
+vulputate justo. Suspendisse potenti. Etiam porttitor elementum nulla in
+ultricies. Vestibulum volutpat nibh eu faucibus scelerisque. Suspendisse
+eleifend arcu neque, at tristique metus tempus semper. Nullam ante leo,
+convallis sit amet accumsan sed, semper nec quam. Curabitur fringilla,
+orci id scelerisque varius, enim est ultrices est, et elementum magna
+metus sit amet eros. Sed pharetra semper ligula sit amet efficitur. Mauris
+congue accumsan egestas. Suspendisse potenti. Curabitur tincidunt
+metus non justo tempus lacinia. Donec ornare velit a massa semper
+ullamcorper. Donec dapibus ante vel lacus efficitur sodales. Integer
+pretium eleifend nulla, at ullamcorper ipsum pellentesque placerat. Cras
+condimentum iaculis leo. Sed sit amet pretium sem, sit amet suscipit
+nibh. Nulla congue molestie purus sed congue. Fusce tincidunt ipsum
+id molestie pellentesque. Curabitur lobortis placerat risus eget
+vulputate. Maecenas ac feugiat ex, at facilisis nulla. Etiam rutrum
+quis eros et facilisis. Nulla sodales molestie odio, id egestas massa
+aliquam vel. Mauris vulputate ante sed volutpat euismod. Sed eleifend,
+urna vitae auctor consequat, dui felis elementum ex, ut laoreet nunc
+nisl convallis mi. Nullam id bibendum justo.
+<code>
+< a2s>
+ .---------.
+ |[1]      |
+ | .-----. |
+ | |  <--+ |
+ | +-->  | |
+ | '-----' |
+ |   svg   |
+ |<    a2s>|
+ '---------'
+
+[1]:     {"fill":"#E97B11","a2s:delref":true}
+</a2s>
+<a2s  >
+ .---------.
+ |[blue]   |
+ | .---.-. |
+ | | .-. | |
+ | | '-' | |
+ | '---'-' |
+ |  ascii  |
+ |<a2s    >|
+ '---------'
+
+[blue]:     {"fill":"blue","a2s:delref":true}
+</a2s>
+<  a2s  >
+ .---------.
+ |[lc]     |
+ | .-----. |
+ | +-->  | |
+ | |  <--+ |
+ | '-----' |
+ |    2    |
+ |<  a2s  >|
+ '---------'
+
+[lc]:     {"fill":"LemonChiffon","a2s:delref":true}
+</a2s>
+
+< a2s>
+ .---------.
+ |[1]      |
+ | .-----. |
+ | |  <--+ |
+ | +-->  | |
+ | '-----' |
+ |   svg   |
+ |<    a2s>|
+ '---------'
+[1]:     {"fill":"#bcd2ee","a2s:delref":true}
+</a2s>
+Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed accumsan nec
+odio quis aliquet. Nulla gravida ac est venenatis rhoncus. Aenean viverra
+felis semper turpis commodo, ut vehicula dui mattis. Vivamus malesuada
+vulputate justo. Suspendisse potenti. Etiam porttitor elementum nulla in
+ultricies. Vestibulum volutpat nibh eu faucibus scelerisque. Suspendisse
+eleifend arcu neque, at tristique metus tempus semper. Nullam ante leo,
+convallis sit amet accumsan sed, semper nec quam. Curabitur fringilla,
+orci id scelerisque varius, enim est ultrices est, et elementum magna
+metus sit amet eros. Sed pharetra semper ligula sit amet efficitur. Mauris
+congue accumsan egestas. Suspendisse potenti. Curabitur tincidunt
+metus non justo tempus lacinia. Donec ornare velit a massa semper
+ullamcorper. Donec dapibus ante vel lacus efficitur sodales. Integer
+pretium eleifend nulla, at ullamcorper ipsum pellentesque placerat. Cras
+condimentum iaculis leo. Sed sit amet pretium sem, sit amet suscipit
+nibh. Nulla congue molestie purus sed congue. Fusce tincidunt ipsum
+id molestie pellentesque. Curabitur lobortis placerat risus eget
+vulputate. Maecenas ac feugiat ex, at facilisis nulla. Etiam rutrum
+quis eros et facilisis. Nulla sodales molestie odio, id egestas massa
+aliquam vel. Mauris vulputate ante sed volutpat euismod. Sed eleifend,
+urna vitae auctor consequat, dui felis elementum ex, ut laoreet nunc
+nisl convallis mi. Nullam id bibendum justo.
+</code>
+
+===== list of known SVG shapes =====
+
+
+<a2s>
+Shapes :
+.----------.     .----------.     .----------.
+|[cloud]   |     |[computer]|     |[diamond] |
+|          |  +->|          |<-o->|          |
+|          |  |  |          |  |  |          |
+.----------.  |  .----------.  |  .----------.
+--------------o----------------+
+.----------.  |  .----------.  |  .----------.
+|[document]|  :  |[storage] |  |  |[printer] |
+|          |<-+->|          |  |  | Some txt |
+|          |     |          |<-+->|          |
+.----------.     .----------.     '----------'
+
+.----------.     .----------.     .----------.
+|[cl]      |     |[c]       |     |[yn]      |
+|          |  +->|          |<-o->|          |
+|          |  |  |          |  |  |          |
+.----------.  |  .----------.  |  .----------.
+--------------o----------------+
+.----------.  |  .----------.  |  .----------.
+|[d]       |  :  |[st]      |  |  |[p]       |
+|          |<-+->|          |  |  | Some txt |
+|          |     |          |<-+->|          |
+.----------.     .----------.     '----------'
+
+
+[printer]:  {"a2s:type":"printer","fill":"#ff1493"}
+[computer]: {"a2s:type":"computer"}
+[cloud]:    {"a2s:type":"cloud"}
+[diamond]:  {"a2s:type":"diamond"}
+[document]: {"a2s:type":"document"}
+[storage]:  {"a2s:type":"storage"}
+[p]:        {"a2s:type":"printer","fill":"#ff1493","a2s:delref":true}
+[c]:        {"a2s:type":"computer","a2s:delref":true}
+[cl]:       {"a2s:type":"cloud","a2s:delref":true}
+[yn]:       {"a2s:type":"diamond","a2s:delref":true}
+[d]:        {"a2s:type":"document","a2s:delref":true}
+[st]:       {"a2s:type":"storage","a2s:delref":true}
+</a2s>
+<code txt shapes>
+<a2s>
+Shapes :
+.----------.     .----------.     .----------.
+|[cloud]   |     |[computer]|     |[diamond] |
+|          |  +->|          |<-o->|          |
+|          |  |  |          |  |  |          |
+.----------.  |  .----------.  |  .----------.
+--------------o----------------+
+.----------.  |  .----------.  |  .----------.
+|[document]|  :  |[storage] |  |  |[printer] |
+|          |<-+->|          |  |  | Some txt |
+|          |     |          |<-+->|          |
+.----------.     .----------.     '----------'
+
+.----------.     .----------.     .----------.
+|[cl]      |     |[c]       |     |[yn]      |
+|          |  +->|          |<-o->|          |
+|          |  |  |          |  |  |          |
+.----------.  |  .----------.  |  .----------.
+--------------o----------------+
+.----------.  |  .----------.  |  .----------.
+|[d]       |  :  |[st]      |  |  |[p]       |
+|          |<-+->|          |  |  | Some txt |
+|          |     |          |<-+->|          |
+.----------.     .----------.     '----------'
+
+
+[printer]:  {"a2s:type":"printer","fill":"#ff1493"}
+[computer]: {"a2s:type":"computer"}
+[cloud]:    {"a2s:type":"cloud"}
+[diamond]:  {"a2s:type":"diamond"}
+[document]: {"a2s:type":"document"}
+[storage]:  {"a2s:type":"storage"}
+[p]:        {"a2s:type":"printer","fill":"#ff1493","a2s:delref":true}
+[c]:        {"a2s:type":"computer","a2s:delref":true}
+[cl]:       {"a2s:type":"cloud","a2s:delref":true}
+[yn]:       {"a2s:type":"diamond","a2s:delref":true}
+[d]:        {"a2s:type":"document","a2s:delref":true}
+[st]:       {"a2s:type":"storage","a2s:delref":true}
+</a2s>
+</code>
+
+===== shapes inside shapes and custom styles =====
+
+Transparency is obtained by using an invalid colorname.
+This is undocumented. This may change depending on the browser
+or rendering library.
+
+<a2s>
+.---------------------------.   .----------.
+|[storage]                  |   |[document]|
+|         STORAGE           |   |          |
+|                           |   |          |
+|                           |   .----------.
+|       .----------.    .---+-------.
+|       |[document]|    |[0]|TRANS  |
+|       |          |    |   |PARENT |
+|       |          |    '---+-------'
+|       .----------.        |
+.---------------------------.
+
+
+storage:          : document :
+"fill":"#a7ffbe"  : "stroke":"#d627d8"
+"a2s:delref":true : "stroke-width":9
+                  : "stroke-dasharray":"5 3 3 7 10 5"
+  5       3     3      7          10          5
+.-----. .---. .---. .-------. .----------. .-----.
+|[r]  | |   | |[r]| |       | |[r]       | |     |
+'-----' '---' '---' '-------' '----------' '-----'
+
+[document]: {"a2s:type":"document","stroke":"#d627d8","stroke-width":9,"stroke-dasharray":"5 3 3 7 10 5"}
+[storage]:  {"a2s:type":"storage","fill":"#a7ffbe","a2s:delref":true}
+[0]:        {"stroke":"#FFEE49","stroke-width":9,"a2s:delref":true,"fill":"caramba"}
+[r]:        {"fill":"#d627d8","a2s:delref":true}
+</a2s>
+<code>
+<a2s>
+.---------------------------.   .----------.
+|[storage]                  |   |[document]|
+|         STORAGE           |   |          |
+|                           |   |          |
+|                           |   .----------.
+|       .----------.    .---+-------.
+|       |[document]|    |[0]|TRANS  |
+|       |          |    |   |PARENT |
+|       |          |    '---+-------'
+|       .----------.        |
+.---------------------------.
+
+
+storage:          : document :
+"fill":"#a7ffbe"  : "stroke":"#d627d8"
+"a2s:delref":true : "stroke-width":9
+                  : "stroke-dasharray":"5 3 3 7 10 5"
+  5       3     3      7          10          5
+.-----. .---. .---. .-------. .----------. .-----.
+|[r]  | |   | |[r]| |       | |[r]       | |     |
+'-----' '---' '---' '-------' '----------' '-----'
+
+[document]: {"a2s:type":"document","stroke":"#d627d8","stroke-width":9,"stroke-dasharray":"5 3 3 7 10 5"}
+[storage]:  {"a2s:type":"storage","fill":"#a7ffbe","a2s:delref":true}
+[0]:        {"stroke":"#FFEE49","stroke-width":9,"a2s:delref":true,"fill":"caramba"}
+[r]:        {"fill":"#d627d8","a2s:delref":true}
+</a2s>
+</code>
+
+
+===== Configuration and Settings =====
+
+There is nothing to configure.
+
+===== Development =====
+
+
+=== Change Log ===
+
+{{rss>https://github.com/schplurtz/a2s/commits/master.atom date}}
+
+
+
