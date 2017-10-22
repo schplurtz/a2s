@@ -20,8 +20,7 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
 <!-- Created with ASCIIToSVG (https://github.com/dhobsd/asciitosvg/) -->
 <svg 
 SVG;
-    protected static $alignbyid=Array();
-    protected static $id=-1;
+    protected static $align='';
     /**
      * return some info.
      * Why did I copy this function here ? old DW compat ???
@@ -76,7 +75,6 @@ SVG;
     public function handle($match, $state, $pos, Doku_Handler $handler){
         switch ($state) {
         case DOKU_LEXER_ENTER :
-            self::$id += 1; // increment id when we meet a new <a2s> string
             $spaces=array();
             preg_match( '/<( *)a2s( *)>/', $match, $spaces );
             $left=strlen($spaces[1]);
@@ -90,16 +88,16 @@ SVG;
                 else
                     $align='center';
             }
-            self::$alignbyid[self::$id]=$align; // needed to pass $align to ODT LEXER_MATCHED render
-            return array($state, $align, null);
+            self::$align=$align; // needed to pass $align to ODT LEXER_MATCHED render
+            return array($state, $align, null); // odt renderer expects array size 3
         case DOKU_LEXER_UNMATCHED :
             $o = new dokuwiki\plugin\a2s\ASCIIToSVG(trim($match, "\r\n"));
             $o->setDimensionScale(9, 16);
             $o->parseGrid();
             // save alignment for later use by ODT renderer
-            return array($state, $o->render(), self::$alignbyid[self::$id]);
+            return array($state, $o->render(), self::$align);
         case DOKU_LEXER_EXIT :
-            return array($state, '');
+            return array($state, null, null); // odt renderer expects array size 3
         }
         return array();
     }
@@ -133,15 +131,15 @@ SVG;
      * @return bool If rendering was successful.
      */
     protected function _render_xhtml(Doku_Renderer $renderer, $data) {
-        list($state, $passed_in) = $data;
+        list($state, $value) = $data;
 
         switch ($state) {
         case DOKU_LEXER_ENTER :
-            $align=self::$cssAlign[$passed_in];
+            $align=self::$cssAlign[$value];
             $renderer->doc .= "<svg class=\"a2s {$align}\" ";
         break;
         case DOKU_LEXER_UNMATCHED :
-            $renderer->doc .= $passed_in;
+            $renderer->doc .= $value;
         break;
         }
         return true;
@@ -155,11 +153,11 @@ SVG;
      * @return bool If rendering was successful.
      */
     protected function _render_odt(Doku_Renderer $renderer, $data) {
-        list($state, $passed_in, $align) = $data;
+        list($state, $svg_data, $align) = $data;
 
         if($state === DOKU_LEXER_UNMATCHED) {
-            $dim=$this->_extract_XY_4svg( $passed_in );
-            $renderer->_addStringAsSVGImage(self::$opening.$passed_in, $dim[0], $dim[1], $align);
+            $dim=$this->_extract_XY_4svg( $svg_data );
+            $renderer->_addStringAsSVGImage(self::$opening.$svg_data, $dim[0], $dim[1], $align);
         }
         return true;
     }
