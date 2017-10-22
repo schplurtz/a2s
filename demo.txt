@@ -131,7 +131,7 @@ Available styling parametre :
   * shape : ''"a2s:type":"shapename"'' where shapename is one of ''cloud'', ''computer'', ''diamond'', ''document'', ''storage'', ''printer''. Examples<code>"a2s:type":"cloud"
 "a2s:type":"storage"
 </code>
-  * link : ''"a2s:link":"//linktext//"'' where //linktext// is either a wiki link, or a classic %%protocol://server/resource%% link. Examples:<code>
+  * link : ''"a2s:link":"//linktext//"'' where //linktext// is either a wiki link, or a classic %%protocol://server/resource%% link. Since svg can be included in odt file, a2s does not respect [[https://www.dokuwiki.org/config:canonical|canonical]] setting and always generate absolute links.\\ Examples:<code>
 "a2s:link":"[[.:]]"
 "a2s:link":"[[:start]]"
 "a2s:link":"[[:start|The start page]]"
@@ -448,7 +448,6 @@ storage:          : document :
 </a2s>
 </code>
 
-
 ===== Configuration and Settings =====
 
 There is nothing to configure.
@@ -460,5 +459,10 @@ There is nothing to configure.
 
 {{rss>https://github.com/schplurtz/a2s/commits/master.atom date}}
 
+
+===== FAQ =====
+
+:?: When I export to pdf with [[dw2pdf]], the arrowheads on line are not drawn, and alignment is not respected. Can you/I do something about that ?\\
+:!: No. As of 2017/07/27, unless you are the a developer of dw2pdf or mpdf, its PDF library, there is nothing to do. Sorry.
 
 
