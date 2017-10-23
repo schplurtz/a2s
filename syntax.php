@@ -91,7 +91,7 @@ SVG;
             self::$align=$align; // needed to pass $align to ODT LEXER_MATCHED render
             return array($state, $align, null); // odt renderer expects array size 3
         case DOKU_LEXER_UNMATCHED :
-            $o = new dokuwiki\plugin\a2s\ASCIIToSVG(trim($match, "\r\n"));
+            $o = new dokuwiki\plugin\a2s\ASCIIToSVG($this->_prepare($match));
             $o->setDimensionScale(9, 16);
             $o->parseGrid();
             // save alignment for later use by ODT renderer
@@ -176,6 +176,28 @@ SVG;
         array_shift($sizes);
         // assume a 96 dpi screen
         return array_map( function($v) { return ($v/96.0)."in"; }, $sizes );
+    }
+    /**
+     * Prepare matched text for beeing parsed. Removes unnecessary blank lines
+     * expand wikilinks to http absolute links. (absolute links because of
+     * ODT export)
+     *
+     * @param String  $text  The matched a2s input string
+     * @return String        the prepared string
+     */
+    protected function _prepare( $text ) {
+        return preg_replace_callback(
+                     '/"a2s:link":"
+                     \\[\\[
+                         ([^]|]*)    # The page_id
+                         (\\|[^]]*)? # |description optional
+                     ]]"
+                     /x',
+                     function( $match ) {
+                         return '"a2s:link":"' . wl( cleanID($match[1]), '', true ) . '"';
+                     },
+                     trim($text, "\r\n")
+               );
     }
 }
 

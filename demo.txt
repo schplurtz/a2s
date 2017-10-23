@@ -70,7 +70,7 @@ Install the plugin using the [[doku>plugin:plugin|Plugin Manager]]. It will inst
 ====>| (svg) World '------.   /  #------#   .-------.    |
      |    .-----#         |==+   |      |   |       |    |
      '----#     '---------#      #------#   '-------'
-[0]: {"fill":"#CE3B83","stroke":"#F50078","stroke-dasharray":"5 5","stroke-width":4,"a2s:type":"cloud","a2s:delref":true}
+[0]: {"a2s:link":"https://github.com/schplurtz/a2s","fill":"#CE3B83","stroke":"#F50078","stroke-dasharray":"5 5","stroke-width":4,"a2s:type":"cloud","a2s:delref":true}
 </a2s>
 <code txt tryme.a2s>
 <a2s> 
@@ -83,7 +83,7 @@ Install the plugin using the [[doku>plugin:plugin|Plugin Manager]]. It will inst
 ====>| (svg) World '------.   /  #------#   .-------.    |
      |    .-----#         |==+   |      |   |       |    |
      '----#     '---------#      #------#   '-------'
-[0]: {"fill":"#CE3B83","stroke":"#F50078","stroke-dasharray":"5 5","stroke-width":4,"a2s:type":"cloud","a2s:delref":true}
+[0]: {"a2s:link":"https://github.com/schplurtz/a2s","fill":"#CE3B83","stroke":"#F50078","stroke-dasharray":"5 5","stroke-width":4,"a2s:type":"cloud","a2s:delref":true}
 </a2s>
 </code>
 
@@ -104,7 +104,7 @@ Please, note that the reference doc is on [[https://github.com/dhobsd/asciitosvg
       - Identify the shape : In the **top left** angle of the shape, put some text between square bracket. example ''[0]'', ''[logo]'', ''[some text]''
       - **At the bottom** of the drawing, for each identified shape, add a **single** line with the identifier and a JSON hash of property:value. See the section just below for details.
 
-==== Styling shapes ====
+==== Styling shapes and linking ====
 
 Colors are expressed either
   * In RGB with 3 or 6 hexdigits preceded by a sharp sign : ''#88d'', ''#F50078''
@@ -131,10 +131,17 @@ Available styling parametre :
   * shape : ''"a2s:type":"shapename"'' where shapename is one of ''cloud'', ''computer'', ''diamond'', ''document'', ''storage'', ''printer''. Examples<code>"a2s:type":"cloud"
 "a2s:type":"storage"
 </code>
+  * link : ''"a2s:link":"//linktext//"'' where //linktext// is either an internal wiki link, or a classic //%%protocol://server/resource%%// link. [[doku>interwiki|interwiki links]] cannot yet be used. Since SVG can be included in ODT file, a2s does not obey the [[doku>config:canonical|canonical]] setting and always generate absolute links.\\ Examples:<code>
+"a2s:link":"[[.:]]"
+"a2s:link":"[[:start]]"
+"a2s:link":"[[:start|The start page]]"
+"a2s:link":"https://github.com/schplurtz/a2s"
+"a2s:link":"ftp://ftp.debian.org/debian/README"
+</code>
   * identifier removal. By default the id is left in the image. This is useful when you have enough room to use a meaningful word as id. However, it is possible to remove it using this code <code>"a2s:delref":true</code>
 
 here is a full example :
-<code>[0]: {"fill":"#d48","stroke":"#F50078","stroke-dasharray":"5 5","stroke-width":4,"a2s:type":"cloud","a2s:delref":true}</code>
+<code>[0]: {"fill":"#d48","stroke":"#F50078","stroke-dasharray":"5 5","stroke-width":4,"a2s:type":"cloud","a2s:delref":true,"a2s:link":"https://github.com/schplurtz/a2s"}</code>
 
 ==== Alignment ====
 
