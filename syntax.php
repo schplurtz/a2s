@@ -20,6 +20,7 @@ class syntax_plugin_a2s extends DokuWiki_Syntax_Plugin {
 <!-- Created with ASCIIToSVG (https://github.com/dhobsd/asciitosvg/) -->
 <svg 
 SVG;
+    protected static $renderer=null;
     protected static $align='';
     /**
      * return some info.
@@ -196,8 +197,25 @@ SVG;
                      function( $match ) {
                          return '"a2s:link":"' . wl( cleanID($match[1]), '', true ) . '"';
                      },
-                     trim($text, "\r\n")
+                     preg_replace_callback(
+                                  '/"a2s:link":"
+                                  \\[\\[
+                                      ([a-z0-9][-_.a-z0-9]*[a-z0-9])>([^]]*)
+                                  ]]"
+                                  /x',
+                                  function( $match ) {
+                                      return '"a2s:link":"' . $this->interwiki($match[1], $match[2]) . '"';
+                                  },
+                                  trim($text, "\r\n")
+                     )
                );
+    }
+    function interwiki( $wiki, $id ) {
+        if( null == self::$renderer ) {
+            self::$renderer = p_get_renderer('xhtml');  // get renderer
+            self::$renderer->interwiki = getInterwiki();  // populate the interwiki hash with the interwiki schemes
+        }
+        return self::$renderer->_resolveInterWiki($wiki,$id);
     }
 }
 
