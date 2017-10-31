@@ -2,7 +2,7 @@
 
 <code>
 ---- plugin ----
-description: Convert ASCII art to nice embedded SVG images
+description: Convert ASCII art diagram to nice embedded SVG images
 author     : Schplurtz le Déboulonné
 email      : Schplurtz@laposte.net
 type       : syntax
@@ -131,7 +131,7 @@ Available styling parametre :
   * shape : ''"a2s:type":"shapename"'' where shapename is one of ''cloud'', ''computer'', ''diamond'', ''document'', ''storage'', ''printer''. Examples<code>"a2s:type":"cloud"
 "a2s:type":"storage"
 </code>
-  * link : ''"a2s:link":"//linktext//"'' where //linktext// is either an internal wiki link, or a classic //%%protocol://server/resource%%// link. [[doku>interwiki|interwiki links]] cannot yet be used. Since SVG can be included in ODT file, a2s does not obey the [[doku>config:canonical|canonical]] setting and always generate absolute links.\\ Examples:<code>
+  * link : ''"a2s:link":"//linktext//"'' where //linktext// is either an internal wiki link, an [[doku>interwiki|interwiki links]], or a classic //%%protocol://server/resource%%// link. Since SVG can be included in ODT and PDF file, a2s does not obey the [[doku>config:canonical|canonical]] setting and always generate absolute links. Since neither libreoffice nor [[doku>plugin:dw2pdf|dw2pdf]] use this link, this seems rather useless and may change in the future.\\ Examples:<code>
 "a2s:link":"[[.:]]"
 "a2s:link":"[[:start]]"
 "a2s:link":"[[:start|The start page]]"
