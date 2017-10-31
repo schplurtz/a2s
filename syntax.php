@@ -90,7 +90,7 @@ SVG;
                     $align='center';
             }
             self::$align=$align; // needed to pass $align to ODT LEXER_MATCHED render
-            return array($state, $align, null); // odt renderer expects array size 3
+            return array($state, $align, null); // odt renderer expects 3 values
         case DOKU_LEXER_UNMATCHED :
             $o = new dokuwiki\plugin\a2s\ASCIIToSVG($this->_prepare($match));
             $o->setDimensionScale(9, 16);
@@ -98,7 +98,7 @@ SVG;
             // save alignment for later use by ODT renderer
             return array($state, $o->render(), self::$align);
         case DOKU_LEXER_EXIT :
-            return array($state, null, null); // odt renderer expects array size 3
+            return array($state, null, null); // odt renderer expects 3 values
         }
         return array();
     }
@@ -113,12 +113,32 @@ SVG;
      * @return bool If rendering was successful.
      */
     public function render($mode, Doku_Renderer $renderer, $data) {
+        list($state, $txtdata, $align) = $data;
+        if( $state == DOKU_LEXER_UNMATCHED ) {
+            $this->renderer = $renderer;
+            $txtdata=preg_replace_callback(
+                         '/
+                         xlink:href="
+                         <INTERWIKI>
+                         <([^>]*)>
+                         <([^>]*)>
+                         "
+                         /x',
+                         function( $match ) {
+                             return 'xlink:href="' .
+                                    $this->renderer->_resolveInterWiki($match[1],$match[2]) .
+                                    '"';
+                         }
+                         , $txtdata
+            );
+        }
+        
         switch($mode) {
         case 'xhtml':
-            return $this->_render_xhtml($renderer, $data);
+            return $this->_render_xhtml($renderer, $state, $txtdata );
         break;
         case 'odt':
-            return $this->_render_odt($renderer, $data);
+            return $this->_render_odt($renderer, $state, $txtdata, $align );
         break;
         }
         return false;
@@ -128,19 +148,19 @@ SVG;
      * Render xhtml output. add data to the renderer doc.
      *
      * @param Doku_Renderer  $renderer  The renderer
-     * @param array          $data      The data from the handler() function
+     * @param int            $state     The state
+     * @param string         $txtdata   Textual data that handle() associated with this state
      * @return bool If rendering was successful.
      */
-    protected function _render_xhtml(Doku_Renderer $renderer, $data) {
-        list($state, $value) = $data;
+    protected function _render_xhtml(Doku_Renderer $renderer, $state, $txtdata) {
 
         switch ($state) {
         case DOKU_LEXER_ENTER :
-            $align=self::$cssAlign[$value];
+            $align=self::$cssAlign[$txtdata];
             $renderer->doc .= "<svg class=\"a2s {$align}\" ";
         break;
         case DOKU_LEXER_UNMATCHED :
-            $renderer->doc .= $value;
+            $renderer->doc .= $txtdata;
         break;
         }
         return true;
@@ -150,15 +170,15 @@ SVG;
      * Render odt output.
      *
      * @param Doku_Renderer  $renderer  The renderer
-     * @param array          $data      The data from the handler() function
+     * @param int            $state     The state
+     * @param string         $txtdata   Textual data that handle() associated with this state
+     * @param string         $align     img align
      * @return bool If rendering was successful.
      */
-    protected function _render_odt(Doku_Renderer $renderer, $data) {
-        list($state, $svg_data, $align) = $data;
-
+    protected function _render_odt(Doku_Renderer $renderer, $state, $txtdata, $align) {
         if($state === DOKU_LEXER_UNMATCHED) {
-            $dim=$this->_extract_XY_4svg( $svg_data );
-            $renderer->_addStringAsSVGImage(self::$opening.$svg_data, $dim[0], $dim[1], $align);
+            $dim=$this->_extract_XY_4svg( $txtdata );
+            $renderer->_addStringAsSVGImage(self::$opening.$txtdata, $dim[0], $dim[1], $align);
         }
         return true;
     }
@@ -204,18 +224,11 @@ SVG;
                                   ]]"
                                   /x',
                                   function( $match ) {
-                                      return '"a2s:link":"' . $this->interwiki($match[1], $match[2]) . '"';
+                                      return '"a2s:link":"<INTERWIKI><' . $match[1] . '><' . $match[2] . '>"';
                                   },
                                   trim($text, "\r\n")
                      )
                );
-    }
-    function interwiki( $wiki, $id ) {
-        if( null == self::$renderer ) {
-            self::$renderer = p_get_renderer('xhtml');  // get renderer
-            self::$renderer->interwiki = getInterwiki();  // populate the interwiki hash with the interwiki schemes
-        }
-        return self::$renderer->_resolveInterWiki($wiki,$id);
     }
 }
 
