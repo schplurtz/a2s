@@ -137,7 +137,7 @@ SVG;
         case 'xhtml':
             return $this->_render_xhtml($renderer, $state, $txtdata );
         break;
-        case 'odt':
+        case 'odt': case 'odt_pdf':
             return $this->_render_odt($renderer, $state, $txtdata, $align );
         break;
         }
