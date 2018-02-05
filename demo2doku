@@ -1,0 +1,136 @@
+#! /usr/bin/env python
+# encoding: utf-8
+# vim: se ts=2 sw=2 et ai:
+
+from __future__ import print_function
+import re
+import sys
+import hashlib
+
+"""
+Transforme demo.txt en version pour dokuwiki.org.
+
+Ce qu'il faut changer :
+demo.txt    |
+------------+---------------
+<a2s>       | {{{http://imageshack.com/a/img924/544/0Ct4jR.png}}
+pouet       |
+</a2>       |
+<code>      | <code>
+<a2s>       | <a2s>
+pouet       | pouet
+</a2s>      | </a2s>
+</code>     | </code>
+
+
+On a systématiquement un-certain-texte qui sera repris
+exactement dans un bloc <code></code>.
+
+la technique est donc de lire ligne à ligne dans un buffer
+si on tombe sur /^<code>(?!.*<.code>)/ (ouvrant en début de ligne sans
+fermant sur la même ligne), alors on stocke dans un autre buffer
+jusqu'à ce qu'on tombe sur le fermant </code>.
+
+Le texte repéré entre <code> et </code> est normalement déjà dans
+le premier buffer. On le remplace par la chaine pour l'image
+externe. et on insère le code entre <code> et </code>.
+"""
+
+def load_plugin_info( fn ):
+  return dict(map( lambda x: tuple(re.split( '\\s+', x.rstrip(), 1 )), open(fn).readlines()))
+  d={}
+  for line in open( fn ).readlines:
+    # if '' == line.rstrip(): next # can't heppen in plugin.info.txt
+    a=re.split( '\\s+', line.rstrip(), 1)
+    d[a[0]]=a[1]
+  return d
+
+def plugin_stanza():
+  stanza='''
+    ---- plugin ----
+    description: {0}
+    author     : {1}
+    email      : {2}
+    type       : syntax
+    lastupdate : {3}
+    compatible : elenor of tsort, detritus, frusterick manners
+    depends    : 
+    conflicts  : 
+    similar    : ditaa, diagram
+    tags       : ASCII, SVG, image, images, media, diagram
+    downloadurl: https://github.com/schplurtz/{4}/zipball/master
+    bugtracker : https://github.com/schplurtz/{4}/issues
+    sourcerepo : https://github.com/schplurtz/{4}
+    donationurl: 
+    
+    screenshot_img : http://imageshack.com/a/img923/6940/SjSOjj.png
+    ----
+  '''.replace('\n    ', '\n' )
+
+  i=load_plugin_info( 'plugin.info.txt' )
+  return stanza.format( i['desc'], i['author'], i['email'], i['date'], i['base'] )
+    
+buffer=''
+def puts( s ):
+  global buffer
+  buffer += s
+  
+
+inside_code=False
+exiting_code=False
+entering_code=False
+lineno=0
+mapping={
+  '668e458b9b962e667715d2c51c62c33d': '{{http://imageshack.com/a/img924/544/0Ct4jR.png}}',
+  '437f03e8f86803fec6c4f0c0592add85': '{{http://imageshack.com/a/img923/361/5KZR0X.png}}',
+  'd7ed4e371d7db4ff66e26c209e751d1e': '{{http://imageshack.com/a/img922/5228/MfGXsO.png}}',
+  '7cc0d0673f5863b7a0d8cd4bfff30e5e': '{{http://imageshack.com/a/img923/548/jHS4IU.png}}',
+  '7a211bb5b16d90e6430cf256303bd3f3': '{{http://imageshack.com/a/img922/5582/l6VrcE.png}}',
+}
+with open(sys.argv[1]) as f:
+  for line in f:
+    lineno += 1
+    if lineno == 1:
+      puts( line )
+      puts( plugin_stanza() )
+      continue
+      
+    #if lineno > 23: exit()
+    if re.match( r'^<code(?!.*</code>)', line ):
+      inside_code=True
+      sum=hashlib.md5()
+      code_txt=''
+      entering_code=True
+      code_param=line[5:]
+
+    if re.match( r'^.*</code>', line ):
+      if inside_code:
+        exiting_code=True
+        inside_code=False
+
+    if entering_code:
+      entering_code=False
+      continue
+
+    if inside_code:
+      code_txt += line
+    elif exiting_code:
+      exiting_code = False
+      sum.update(code_txt.encode('utf-8'))
+      sum=sum.hexdigest()
+      buffer=buffer.replace(code_txt, '')
+      if sum in mapping:
+        puts( mapping[sum] + "\n" )
+        puts('<code' + code_param)
+        puts(code_txt)
+        puts('</code>\n')
+      else:
+        print( "img for "+sum+' is needed.')
+        print( '>>>>>>>>>>>' + buffer + '<<<<<<<<<<<\n' )
+      
+    else:
+      puts( line )
+
+with open('plugin:a2s.txt', 'w') as output:
+  output.write( buffer )
+

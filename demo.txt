@@ -1,26 +1,5 @@
 ====== a2s Plugin ======
 
-<code>
----- plugin ----
-description: Convert ASCII art diagram to nice embedded SVG images
-author     : Schplurtz le Déboulonné
-email      : Schplurtz@laposte.net
-type       : syntax
-lastupdate : 2017-08-05
-compatible : elenor of tsort, detritus, frusterick manners
-depends    : 
-conflicts  : 
-similar    : ditaa, diagram
-tags       : ASCII, SVG, image, images, media, diagram
-downloadurl: https://github.com/schplurtz/a2s/zipball/master
-bugtracker : https://github.com/schplurtz/a2s/issues
-sourcerepo : https://github.com/schplurtz/a2s
-donationurl: 
-
-screenshot_img : http://imageshack.com/a/img923/6940/SjSOjj.png
-----
-</code>
-
 a2s is a little plugin that turns ASCII art boxes, lines and arrows into nice SVG images. It is based on [[https://github.com/dhobsd/asciitosvg|ASCIIToSVG]] by [[https://github.com/dhobsd|Devon H. O'Dell]]. It is very similar to the [[doku>plugin:ditaa|ditaa]] plugin but does not require external programs to run. It is compatible with the ODT export plugin.
 
 ===== Installation =====
@@ -131,10 +110,11 @@ Available styling parametre :
   * shape : ''"a2s:type":"shapename"'' where shapename is one of ''cloud'', ''computer'', ''diamond'', ''document'', ''storage'', ''printer''. Examples<code>"a2s:type":"cloud"
 "a2s:type":"storage"
 </code>
-  * link : ''"a2s:link":"//linktext//"'' where //linktext// is either an internal wiki link, an [[doku>interwiki|interwiki links]], or a classic //%%protocol://server/resource%%// link. Since SVG can be included in ODT and PDF file, a2s does not obey the [[doku>config:canonical|canonical]] setting and always generate absolute links. Since neither libreoffice nor [[doku>plugin:dw2pdf|dw2pdf]] use this link, this seems rather useless and may change in the future.\\ Examples:<code>
+  * link : ''"a2s:link":"//linktext//"'' where //linktext// is either an internal wiki link, an [[doku>interwiki|interwiki link]], or a classic //%%protocol://server/resource%%// link. Since SVG can be included in ODT and PDF file, a2s does not obey the [[doku>config:canonical|canonical]] setting and always generate absolute links. Since neither libreoffice nor [[doku>plugin:dw2pdf|dw2pdf]] use this link, this seems rather useless and may change in the future.\\ Examples:<code>
 "a2s:link":"[[.:]]"
 "a2s:link":"[[:start]]"
 "a2s:link":"[[:start|The start page]]"
+"a2s:link":"[[doku>interwiki|interwiki link]]
 "a2s:link":"https://github.com/schplurtz/a2s"
 "a2s:link":"ftp://ftp.debian.org/debian/README"
 </code>
@@ -381,6 +361,7 @@ Shapes :
 [st]:       {"a2s:type":"storage","a2s:delref":true}
 </a2s>
 </code>
+
 
 ===== shapes inside shapes and custom styles =====
 
