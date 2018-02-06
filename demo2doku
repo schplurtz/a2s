@@ -37,12 +37,16 @@ externe. et on insère le code entre <code> et </code>.
 """
 
 def load_plugin_info( fn ):
-  return dict(map( lambda x: tuple(re.split( '\\s+', x.rstrip(), 1 )), open(fn).readlines()))
+  with open(fn) as f:
+    return dict(
+                map(lambda x: tuple(re.split( '\\s+', x.rstrip(), 1 )),
+                f.readlines()))
   d={}
-  for line in open( fn ).readlines:
-    # if '' == line.rstrip(): next # can't heppen in plugin.info.txt
-    a=re.split( '\\s+', line.rstrip(), 1)
-    d[a[0]]=a[1]
+  with open(fn) as f:
+    for line in f.readlines:
+      # if '' == line.rstrip(): next # can't happen in plugin.info.txt
+      a=re.split( '\\s+', line.rstrip(), 1)
+      d[a[0]]=a[1]
   return d
 
 def plugin_stanza():
