@@ -1870,11 +1870,13 @@ class SVGGroup {
   private $curGroup;
   private $groupStack;
   private $options;
+  private $index;
 
   public function __construct() {
     $this->groups = array();
     $this->groupStack = array();
     $this->options = array();
+    $this->index = 0;
   }
 
   public function getGroup($groupName) {
@@ -1901,10 +1903,44 @@ class SVGGroup {
     $this->curGroup = array_pop($this->groupStack);
   }
 
+  /*
+    AAVZZ
+    Since SVG has no notion of layers, we emulate them by changing the order
+    of boxes. This involves tagging and reordering. Tagging is done in `addObject',
+    reordering in `rearrangeBoxes'. We tag a box with a layer prefix, like `a' (default),
+    `b', `c' and so on. So, the sequence numbers will be something like
+    a0, a1, b2, a3, a4, b5, c6 ...
+    Once all the boxes are parsed, we need to rearrange them like
+    a0, a1, a3, a4, b2, b5, c6 ...
+    and change the indices to be numeic (we rely on them being numeric!!)
+    XXX Some text lines belonging to overlying box are placed in underlying box
+    XXX and do not show up. Further investigation is necessary to place them correctly.
+    XXX This issue is not introduced with this patch.
+  */
+	
   public function addObject($o) {
-    $this->groups[$this->curGroup][] = $o;
+    if ($this->curGroup == "boxes") {
+      $layer = 'a';
+      if ($o->getOption('a2s:layer')) {
+          $layer = $o->getOption('a2s:layer');
+      }
+      $i =  $layer . $this->index++;
+      $this->groups[$this->curGroup][$i] = $o;
+    }
+    else {
+      $this->groups[$this->curGroup][] = $o;
+    }
   }
 
+  public function rearrangeBoxes() {
+    $newboxes = array();
+    ksort($this->groups["boxes"], SORT_NATURAL);
+    foreach($this->groups["boxes"] as $index => $value) {
+        $newboxes[] = $value;
+    }
+    $this->groups["boxes"]=$newboxes;
+  }
+	
   public function setOption($opt, $val) {
     $this->options[$this->curGroup][$opt] = $val;
   }
@@ -2953,6 +2989,7 @@ SVG;
    */
   public function parseGrid() {
     $this->parseBoxes();
+    $this->svgObjects->rearrangeBoxes();
     $this->parseLines();
 
     foreach ($this->clearCorners as $corner) {
