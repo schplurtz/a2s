@@ -1,7 +1,7 @@
 base   a2s
 author Schplurtz le Déboulonné
 email  Schplurtz@laposte.net
-date   2017-12-17
+date   2018-05-26
 name   a2s plugin
 desc   Convert ASCII art diagram to nice embedded SVG images.
 url    https://www.dokuwiki.org/plugin:a2s
