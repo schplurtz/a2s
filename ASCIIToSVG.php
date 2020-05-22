@@ -1859,6 +1859,39 @@ class Point {
     $this->gridX = $x;
     $this->gridY = $y;
   }
+  /*
+   * Compute geographic direction from this point to the one given
+   * as parameter.
+   *         N
+   *      NW | NE
+   *        \|/
+   *      W--o--E
+   *        /|\
+   *      SW | SE
+   *         S
+   *
+   * @author Schplurtz le Déboulonné <Schplurtz AT laposet•net>
+   * @param Point $otherPoint   The point pointed at
+   * @return string     the direction or '' if both point have same coordinates
+   */
+  public function direction( $otherPoint ) {
+    $deltaX = $otherPoint->gridX - $this->gridX;
+    $deltaY = $otherPoint->gridY - $this->gridY;
+    $dir='';
+    if($deltaY > 0) {
+      $dir = 'S';
+    }
+    elseif($deltaY < 0) {
+      $dir='N';
+    }
+    if($deltaX > 0) {
+      $dir .= 'E';
+    }
+    elseif($deltaX < 0) {
+      $dir .= 'W';
+    }
+    return $dir;
+  }
 }
 
 /*
@@ -2474,7 +2507,35 @@ class SVGPath {
     }
   }
 
+  /*
+   * Draw an arrowhead at the starting point of a segment given by two points.
+   *
+   * @author Schplurtz le Déboulonné <Schplurtz AT laposet•net>
+   * @param  Point $sp  line starting point
+   * @param  Point $ep  line endpoint point
+   * @return  string    svg string for the arrowhead
+   */
+  public function drawArrowhead($sp, $ep) {
+    $s = Scale::getInstance();
+    $o =  (180 / M_PI) * atan2($s->yScale,$s->xScale);
+    $angles = Array( 'E' => 180, 'N' => '90', 'W' => 0, 'S' => 270,
+                    'NE' => 180 - $o, 'SE' => 180 + $o, 'NW' => $o, 'SW' => - $o
+                   );
+    $dir=$sp->direction($ep);
+    $angle=$angles[$dir];
+
+    $r="<path transform=\"translate(".($sp->x - 5).", ". ($sp->y - 5) .')' .
+       " rotate($angle, 5, 5)\"" .
+       ' fill="#000"' .
+       ' d="M 0 0 L 10 5 L 0 10 z"' .
+       ' />'
+    ;
+    return $r;
+  }
+
   public function render() {
+    $lastButPoint = $this->points[count($this->points) - 2];
+    $secondPoint = $this->points[1];
     $startPoint = array_shift($this->points);
     $endPoint = $this->points[count($this->points) - 1];
 
@@ -2665,16 +2726,12 @@ class SVGPath {
     $id = self::$id++;
 
     /* Add markers if necessary. */
-    if ($startPoint->flags & Point::SMARKER) {
-      $this->options["marker-start"] = "url(#Pointer)";
-    } elseif ($startPoint->flags & Point::IMARKER) {
-      $this->options["marker-start"] = "url(#iPointer)";
+    $arrows=Array();
+    if ($startPoint->flags & (Point::SMARKER | Point::IMARKER)) {
+      $arrows[] = $this->drawArrowhead($startPoint, $secondPoint);
     }
-
-    if ($endPoint->flags & Point::SMARKER) {
-      $this->options["marker-end"] = "url(#Pointer)";
-    } elseif ($endPoint->flags & Point::IMARKER) {
-      $this->options["marker-end"] = "url(#iPointer)";
+    if ($endPoint->flags & (Point::SMARKER | Point::IMARKER)) {
+      $arrows[] = $this->drawArrowhead($endPoint, $lastButPoint);
     }
 
     /*
@@ -2732,6 +2789,10 @@ class SVGPath {
       }
     }
 
+    foreach( $arrows as $a ) {
+      $out .= "\n";
+      $out .= $a;
+    }
     $out .= "</g>\n";
     return $out;
   }
