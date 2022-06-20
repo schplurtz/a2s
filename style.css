@@ -12,6 +12,10 @@ svg.a2s {
   /*
    * Just remove this. With this, svg are vertically clipped
    * when they are horizontally clipped, Which is weird.
-  height: auto;
+   * ... years pass ...
+   * 2022. can't reproduce anymore... And it is needed now, see
+   * https://github.com/splitbrain/dokuwiki/issues/3690
+   * FIXME Should I use instead height: unset ?
    */
+  height: auto;
 }
