@@ -210,12 +210,16 @@ SVG;
         return preg_replace_callback(
                      '/"a2s:link":"
                      \\[\\[
-                         ([^]|]*)    # The page_id
-                         (\\|[^]]*)? # |description optional
+                         ([^][|#]*)    # The page_id
+                         (\\#[^]|]*)?  # #Anchor
+                         (\\|[^]]*)?   # |description optional
                      ]]"
                      /x',
                      function( $match ) {
-                         return '"a2s:link":"' . wl( cleanID($match[1]), '', true ) . '"';
+                             if(strlen($match[2]) > 0) {
+                                     $anchor = "#" . cleanID($match[2]);
+                             }
+                             return '"a2s:link":"' . wl( cleanID($match[1]), '', true ) . $anchor . '"';
                      },
                      preg_replace_callback(
                                   '/"a2s:link":"
